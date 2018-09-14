@@ -14,6 +14,11 @@ typedef struct{
 	size_t size;
 }tape_t;
 
+enum BFCODE
+{
+	BF_NORMAL,BF_SUCCPTR,BF_PREDPTR
+};
+
 cell_t* inittape(tape_t *tape, size_t size)
 {
 	size_t i;
@@ -75,41 +80,41 @@ const ip_t* closebracket(const ip_t *rbegin,const ip_t *rend,int n,int *bfno)
 
 int bfsuccvalue(tape_t* tape)
 {
-	return ++(*tape->ptr),0 ;
+	return ++(*tape->ptr),BF_NORMAL ;
 }
 
 int bfpredvalue(tape_t* tape)
 {
-	return --(*tape->ptr),0 ;
+	return --(*tape->ptr),BF_NORMAL ;
 }
 
 int bfsuccptr(tape_t* tape)
 {
-	return (tape->ptr+1 >= tape->bptr+tape->size) ? 1 : (++tape->ptr,0) ;
+	return (tape->ptr+1 >= tape->bptr+tape->size) ? BF_SUCCPTR : (++tape->ptr,BF_NORMAL) ;
 }
 
 int bfpredptr(tape_t* tape)
 {
-	return (tape->ptr<= tape->bptr) ? 2 : (--tape->ptr,0) ;
+	return (tape->ptr<= tape->bptr) ? BF_PREDPTR : (--tape->ptr,BF_NORMAL) ;
 }
 
 int bfputvalue(tape_t* tape)
 {
-	return putchar(*tape->ptr), fflush(stdout),0;
+	return putchar(*tape->ptr), fflush(stdout),BF_NORMAL;
 }
 
 int bfgetvalue(tape_t* tape)
 {
-	return *tape->ptr=getchar(),0;
+	return *tape->ptr=getchar(),BF_NORMAL;
 }
 
 int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape)
 {
 	const ip_t *ip = begin;
 	
-	int bfno=0;
+	int bfno=BF_NORMAL;
 	
-	while(ip!=end && !bfno)
+	while(ip!=end && (bfno==BF_NORMAL))
 	{
 		switch(*ip)
 		{
@@ -133,6 +138,7 @@ int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape)
 	
 	return bfno;
 }
+
 
 static const ip_t bfcode[]="+-><.,[]";
 
