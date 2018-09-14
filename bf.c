@@ -41,7 +41,7 @@ int elembf(ip_t ip, const ip_t *bfip)
 	return (ip==*bfip) ? 1 : ((!*bfip) ? 0 : elembf(ip,bfip+1));
 }
 
-const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n)
+const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n,int *bfno)
 {
 	const ip_t *ip = begin;
 	
@@ -53,14 +53,15 @@ const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n)
 		if(n) ++ip;
 	}
 	
+	*bfno=n;
 	return ip;
 }
 
-const ip_t* closebracket(const ip_t *begin,const ip_t *end,int n)
+const ip_t* closebracket(const ip_t *rbegin,const ip_t *rend,int n,int *bfno)
 {
-	const ip_t *ip = begin;
+	const ip_t *ip = rbegin;
 	
-	while(n && ip!=end)
+	while(n && ip!=rend)
 	{
 		if(*ip==']') --n;
 		else if(*ip=='[') ++n;
@@ -68,32 +69,69 @@ const ip_t* closebracket(const ip_t *begin,const ip_t *end,int n)
 		if(n) --ip;
 	}
 	
+	*bfno=n;
 	return ip;
+}
+
+int bfsuccvalue(tape_t* tape)
+{
+	return ++(*tape->ptr),0 ;
+}
+
+int bfpredvalue(tape_t* tape)
+{
+	return --(*tape->ptr),0 ;
+}
+
+int bfsuccptr(tape_t* tape)
+{
+	return (tape->ptr+1 >= tape->bptr+tape->size) ? 1 : (++tape->ptr,0) ;
+}
+
+int bfpredptr(tape_t* tape)
+{
+	return (tape->ptr<= tape->bptr) ? 2 : (--tape->ptr,0) ;
+}
+
+int bfputvalue(tape_t* tape)
+{
+	return putchar(*tape->ptr), fflush(stdout),0;
+}
+
+int bfgetvalue(tape_t* tape)
+{
+	return *tape->ptr=getchar(),0;
 }
 
 int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape)
 {
 	const ip_t *ip = begin;
 	
-	while(ip!=end)
+	int bfno=0;
+	
+	while(ip!=end && !bfno)
 	{
 		switch(*ip)
 		{
-			case '+': if(tape->ptr+1 >= tape->bptr+tape->size) return 1; ++(*tape->ptr); break;
-			case '-': if(tape->ptr<= tape->bptr) return 2; --(*tape->ptr); break;
-			case '>': ++tape->ptr; break;
-			case '<': --tape->ptr; break;
-			case '.': putchar(*tape->ptr); fflush(stdout); break;
-			case ',': *tape->ptr=getchar(); break;
-			case '[': if(!*tape->ptr) ip=openbracket(++ip,end,1); break;
-			case ']': if(*tape->ptr) ip=closebracket(--ip,begin,-1); break;
+			case '+': bfno=bfsuccvalue(tape); break;
+			case '-': bfno=bfpredvalue(tape); break;
+			
+			case '>': bfno=bfsuccptr(tape); break;
+			case '<': bfno=bfpredptr(tape); break;
+			
+			case '.': bfno=bfputvalue(tape); break;
+			case ',': bfno=bfgetvalue(tape); break;
+			
+			case '[': if(!*tape->ptr) ip=openbracket(++ip,end,1,&bfno); break;
+			case ']': if(*tape->ptr) ip=closebracket(--ip,begin-1,-1,&bfno); break;
+			
 			default: break;
 		}
 		
 		if(ip!=end) ++ip;
 	}
 	
-	return 0;
+	return bfno;
 }
 
 static const ip_t bfcode[]="+-><.,[]";
