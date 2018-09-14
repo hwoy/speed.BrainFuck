@@ -12,7 +12,6 @@ typedef struct{
 	cell_t *ptr;
 	cell_t *bptr;
 	size_t size;
-	FILE *fp;
 }tape_t;
 
 enum BFCODE
@@ -24,7 +23,7 @@ const ip_t bfcode[]="+-><.,[]";
 
 
 
-const cell_t* inittape(tape_t *tape, size_t size,FILE *fp)
+const cell_t* inittape(tape_t *tape, size_t size)
 {
 	size_t i;
 	
@@ -35,7 +34,6 @@ const cell_t* inittape(tape_t *tape, size_t size,FILE *fp)
 		for(i=0;i<size;++i)
 			tape->ptr[i]=0;
 		
-		tape->fp=fp;
 	}
 	
 	return tape->ptr;
@@ -47,7 +45,6 @@ void destroytape(tape_t *tape)
 	tape->bptr=tape->ptr=NULL;
 	tape->size=0;
 	
-	tape->fp=NULL;
 }
 
 int elembf(ip_t ip, const ip_t *bfip)
@@ -87,37 +84,37 @@ static const ip_t* closebracket(const ip_t *rbegin,const ip_t *rend,int n,int *b
 	return ip;
 }
 
-int bfsuccvalue(tape_t* tape)
+static int bfsuccvalue(tape_t* tape)
 {
 	return ++(*tape->ptr),BF_NORMAL ;
 }
 
-int bfpredvalue(tape_t* tape)
+static int bfpredvalue(tape_t* tape)
 {
 	return --(*tape->ptr),BF_NORMAL ;
 }
 
-int bfsuccptr(tape_t* tape)
+static int bfsuccptr(tape_t* tape)
 {
 	return (tape->ptr+1 >= tape->bptr+tape->size) ? BF_SUCCPTR : (++tape->ptr,BF_NORMAL) ;
 }
 
-int bfpredptr(tape_t* tape)
+static int bfpredptr(tape_t* tape)
 {
 	return (tape->ptr<= tape->bptr) ? BF_PREDPTR : (--tape->ptr,BF_NORMAL) ;
 }
 
-int bfputvalue(tape_t* tape)
+static int bfputvalue(tape_t* tape,FILE *fp)
 {
-	return fputc(*tape->ptr,tape->fp), fflush(tape->fp),BF_NORMAL;
+	return fputc(*tape->ptr,fp), fflush(fp),BF_NORMAL;
 }
 
-int bfgetvalue(tape_t* tape)
+static int bfgetvalue(tape_t* tape)
 {
 	return *tape->ptr=getchar(),BF_NORMAL;
 }
 
-int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape)
+int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape,FILE *fp)
 {
 	const ip_t *ip = begin;
 	
@@ -133,7 +130,7 @@ int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape)
 			case '>': bfno=bfsuccptr(tape); break;
 			case '<': bfno=bfpredptr(tape); break;
 			
-			case '.': bfno=bfputvalue(tape); break;
+			case '.': bfno=bfputvalue(tape,fp); break;
 			case ',': bfno=bfgetvalue(tape); break;
 			
 			case '[': if(!*tape->ptr) ip=openbracket(++ip,end,1,&bfno); break;
@@ -166,9 +163,9 @@ size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 }
 
 
-int main(void)
+int main(int argc ,const char *argv[])
 {
-	FILE *fin,*fout;
+	FILE *fin,*fout=stdout;
 	int ch;
 	tape_t tape;
 	ip_t *prog;
@@ -179,16 +176,16 @@ int main(void)
 		fprintf(stderr,"Error file-in\n");
 		return 1;
 	}
-	
+/*	
 	if(!(fout=fopen("a.txt","wb")))
 	{
 		fprintf(stderr,"Error file-out\n");
 		fclose(fin);
 		return 1;
 	}
+*/	
 	
-	
-	if(!inittape(&tape,TAPESIZE,fout))
+	if(!inittape(&tape,TAPESIZE))
 	{
 		fprintf(stderr,"Error alloc mem for tape\n");
 		fclose(fin);
@@ -208,18 +205,20 @@ int main(void)
 	
 	while((ch=fgetc(fin))!=EOF)
 	{
-		if(!elembf(ch,bfcode)) continue;
-		
-		*prog=ch;size=1;
-		
 		switch(ch)
 		{
-			case '[': size+=gbracket(fin,prog+1,PROGSIZE-1,1); break;
+			case '[': *prog=ch;size=gbracket(fin,prog+1,PROGSIZE-1,1)+1; break;
 			case ']': break;
-			default: break;
+			case '+': 
+			case '-': 
+			case '>': 
+			case '<': 
+			case '.': 
+			case ',': *prog=ch;size=1; break;
+			default: continue;
 		}
 		
-		bfeval(prog,prog+size,&tape);
+		bfeval(prog,prog+size,&tape,fout);
 	}
 	
 	fclose(fin);
