@@ -3,7 +3,7 @@
 
 #include "bf.h"
 
-const ip_t bfcode[]={	
+const inst_t bfinst[]={	
 	INST_SUCCVALUE,
 	INST_PREDVALUE,
 	INST_SUCCPTR,
@@ -38,14 +38,14 @@ void destroytape(tape_t *tape)
 	
 }
 
-int elembf(ip_t ip, const ip_t *bfip)
+int eleminst(inst_t inst, const inst_t *bfinst)
 {
-	return (ip==*bfip) ? 1 : ((!*bfip) ? 0 : elembf(ip,bfip+1));
+	return (inst==*bfinst) ? 1 : ((!*bfinst) ? 0 : eleminst(inst,bfinst+1));
 }
 
-static const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n)
+static const_ip_t openbracket(const_ip_t begin,const_ip_t end,int n)
 {
-	const ip_t *ip = begin;
+	const_ip_t ip = begin;
 	
 	while(n && ip!=end)
 	{
@@ -59,9 +59,9 @@ static const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n)
 	return ip;
 }
 
-static const ip_t* closebracket(const ip_t *rbegin,const ip_t *rend,int n)
+static const_ip_t closebracket(const_ip_t rbegin,const_ip_t rend,int n)
 {
-	const ip_t *ip = rbegin;
+	const_ip_t ip = rbegin;
 	
 	while(n && ip!=rend)
 	{
@@ -105,9 +105,9 @@ static int bfgetvalue(tape_t* tape)
 	return *tape->ptr=getchar(),BF_NORMAL;
 }
 
-int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape,FILE *fp)
+int bfeval(const_ip_t begin,const_ip_t end,tape_t* tape,FILE *fp)
 {
-	const ip_t *ip = begin;
+	const_ip_t ip = begin;
 	
 	int bfno=BF_NORMAL;
 	

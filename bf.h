@@ -7,7 +7,9 @@
 
 
 typedef CELL_T cell_t;
-typedef char ip_t;
+typedef char inst_t;
+typedef inst_t *ip_t;
+typedef const inst_t *const_ip_t;
 
 typedef struct{
 	cell_t *ptr;
@@ -33,16 +35,16 @@ enum BFINST
 	
 };
 
-extern const ip_t bfcode[];
+extern const inst_t bfinst[];
 
 
 const cell_t* inittape(tape_t *tape, size_t size);
 
 void destroytape(tape_t *tape);
 
-int elembf(ip_t ip, const ip_t *bfip);
+int eleminst(inst_t inst, const inst_t *bfinst);
 
-int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape,FILE *fp);
+int bfeval(const_ip_t begin,const_ip_t end,tape_t* tape,FILE *fp);
 
 
 #endif

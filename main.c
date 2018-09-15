@@ -59,14 +59,14 @@ static int showhelp(const char *path)
 }
 
 
-static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
+static size_t gbracket(FILE *fp,ip_t prog,size_t size,int n)
 {
 	size_t i=0;
 	int inst;
 	
 	while(n && i<size && ((inst=fgetc(fp))!=EOF))
 	{
-		if(elembf(inst,bfcode))
+		if(eleminst(inst,bfinst))
 		{
 			if(i>=size) return i;
 				
@@ -78,7 +78,7 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 	return i;
 }
 
-static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog,size_t progsize)
+static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t prog,size_t progsize)
 {
 	size_t size,state=STATE_NORMAL_EVAL;
 	int inst;
@@ -116,7 +116,7 @@ int main(int argc ,const char *argv[])
 {
 	FILE *fin,*fout=stdout;
 	tape_t tape;
-	ip_t *prog;
+	ip_t prog;
 	int ret=0;
 	
 	if(argc<=1)
