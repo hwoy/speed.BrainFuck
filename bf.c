@@ -144,17 +144,17 @@ unsigned int bfeval(const_ip_t begin,const_ip_t end,tape_t* tape,FILE *fp)
 	{
 		switch(*ip)
 		{
-			case INST_SUCCVALUE: bfsuccvalue(tape); break;
+			case INST_SUCCVALUE:	bfsuccvalue(tape); break;
 			case INST_PREDVALUE: bfpredvalue(tape); break;
 			
-			case INST_SUCCPTR: bfno=bfsuccptr(tape); break;
-			case INST_PREDPTR: bfno=bfpredptr(tape); break;
+			case INST_SUCCPTR:	bfno=bfsuccptr(tape); break;
+			case INST_PREDPTR:	bfno=bfpredptr(tape); break;
 			
-			case INST_PUTVALUE: bfputvalue(tape,fp); break;
-			case INST_GETVALUE: bfgetvalue(tape); break;
+			case INST_PUTVALUE:	bfputvalue(tape,fp); break;
+			case INST_GETVALUE:	bfgetvalue(tape); break;
 			
-			case INST_WHILE: if(!*tape->ptr) ip=openbracket(++ip,end,1); break;
-			case INST_ENDWHILE: if(*tape->ptr) ip=closebracket(--ip,begin-1,-1); break;
+			case INST_WHILE:		if(!*tape->ptr) ip=openbracket(++ip,end,1); break;
+			case INST_ENDWHILE:	if(*tape->ptr) ip=closebracket(--ip,begin-1,-1); break;
 			
 			default: break;
 		}
