@@ -133,7 +133,7 @@ int main(int argc ,const char *argv[])
 		return showerr(state,ERR_MEMTAPE,NULL);
 	}
 	
-	if(!(prog=malloc(sizeof(ip_t)*(PROGSIZE+1))))
+	if(!(prog=malloc(sizeof(ip_t)*PROGSIZE)))
 	{
 		destroytape(&tape);
 		fclose(fout);
