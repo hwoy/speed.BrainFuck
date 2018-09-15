@@ -138,7 +138,7 @@ static size_t gbracket(FILE *fp,ip_t progptr,size_t size,int n)
 	return i;
 }
 
-static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,prog_t *prog)
+static unsigned int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,prog_t *prog)
 {
 	size_t size;
 	int inst;
