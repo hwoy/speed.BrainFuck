@@ -35,7 +35,7 @@ static const char *state[]={
 static int showerr(const char *errstr[],size_t errid,const char *str)
 {
 	fprintf(stderr,"\nERROR %u: %s %s\n",errid,errstr[errid],str);
-	return -(errno+1);
+	return errid;
 }
 
 static int showhelp(const char *path)
