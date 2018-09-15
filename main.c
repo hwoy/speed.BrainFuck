@@ -56,9 +56,9 @@
 
 enum STATE
 {
-	STATE_EVAL_NORMAL=BF_NORMAL,
-	STATE_ERR_EVAL_SUCCPTR=BF_SUCCPTR,
-	STATE_ERR_EVAL_PREDPTR=BF_PREDPTR,
+	STATE_EVAL_NORMAL			=BF_NORMAL,
+	STATE_ERR_EVAL_SUCCPTR	=BF_SUCCPTR,
+	STATE_ERR_EVAL_PREDPTR	=BF_PREDPTR,
 	STATE_ERR_EVAL_WHILE,
 	STATE_ERR_EVAL_ENDWHILE,
 	STATE_ERR_FIN,
@@ -159,22 +159,21 @@ static unsigned int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,prog_t *prog)
 	{
 		switch(inst)
 		{
-			case INST_WHILE: *prog->ptr=inst;
-							size=gbracket(fin,prog->ptr+1,prog->size-1,1)+1;
+			case INST_WHILE: 	*prog->ptr=inst;
+								size=gbracket(fin,prog->ptr+1,prog->size-1,1)+1;
 							
-							if(size>=prog->size) 
-								return STATE_ERR_EVAL_WHILE;
+								if(size>=prog->size) return STATE_ERR_EVAL_WHILE;
 							
-							break;
+								break;
 							
-			case INST_ENDWHILE: return STATE_ERR_EVAL_ENDWHILE;
+			case INST_ENDWHILE: 	return STATE_ERR_EVAL_ENDWHILE;
 			
 			case INST_SUCCVALUE: 
 			case INST_PREDVALUE: 
 			case INST_SUCCPTR: 
 			case INST_PREDPTR: 
 			case INST_PUTVALUE: 
-			case INST_GETVALUE: *prog->ptr=inst;size=1; break;
+			case INST_GETVALUE: 	*prog->ptr=inst;size=1; break;
 			
 			default: continue;
 		}
