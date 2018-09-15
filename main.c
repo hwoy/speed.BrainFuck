@@ -6,6 +6,37 @@
 #define TAPESIZE 1024
 #define PROGSIZE (64*1024)
 
+enum ERR
+{
+	ERR_FIN,
+	ERR_FOUT,
+	ERR_MEMTAPE,
+	ERR_MEMPROG
+};
+
+static const char *errstr[]={
+	"Can not access input File:",
+	"Can not access output File:",
+	"Can not alloc memory for TAPE",
+	"Can not alloc memory for PROG",
+	NULL
+};
+
+static int showerr(const char *errstr[],size_t errid,const char *str)
+{
+	fprintf(stderr,"\nERROR %u: %s %s\n",errid,errstr[errid],str);
+	return -(errno+1);
+}
+
+static int showhelp(const char *path)
+{
+	fprintf(stderr,"\n%s is a brainf**k interpreter\n\n",path);
+	fprintf(stderr,"USAGE %s is infile\n",path);
+	fprintf(stderr,"USAGE %s is infile outfile\n",path);
+	
+	return 1;
+}
+
 
 static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 {
@@ -24,46 +55,10 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 	return i;
 }
 
-
-int main(int argc ,const char *argv[])
+static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog)
 {
-	FILE *fin,*fout=stdout;
-	int inst;
-	tape_t tape;
-	ip_t *prog;
 	size_t size;
-	
-	if(!(fin=fopen("a.bf","r")))
-	{
-		fprintf(stderr,"Error file-in\n");
-		return 1;
-	}
-/*	
-	if(!(fout=fopen("a.txt","wb")))
-	{
-		fprintf(stderr,"Error file-out\n");
-		fclose(fin);
-		return 1;
-	}
-*/	
-	
-	if(!inittape(&tape,TAPESIZE))
-	{
-		fprintf(stderr,"Error alloc mem for tape\n");
-		fclose(fin);
-		fclose(fout);
-		return 1;
-	}
-	
-	if(!(prog=malloc(sizeof(ip_t)*(PROGSIZE+1))))
-	{
-		fprintf(stderr,"Error alloc mem for tape\n");
-		fclose(fin);
-		fclose(fout);
-		destroytape(&tape);
-		return 1;
-	}
-	
+	int inst;
 	
 	while((inst=fgetc(fin))!=EOF)
 	{
@@ -80,13 +75,61 @@ int main(int argc ,const char *argv[])
 			default: continue;
 		}
 		
-		bfeval(prog,prog+size,&tape,fout);
+		bfeval(prog,prog+size,tape,fout);
 	}
 	
-	fclose(fin);
-	fclose(fout);
-	destroytape(&tape);
+	return 0;
+	
+}
+
+
+int main(int argc ,const char *argv[])
+{
+	FILE *fin,*fout=stdout;
+	tape_t tape;
+	ip_t *prog;
+	
+	if(argc<=1)
+		return showhelp(argv[0]);
+	
+	if(argc>=2)
+	{
+		if(!(fin=fopen(argv[1],"r")))
+		{
+			return showerr(errstr,ERR_FIN,argv[1]);
+		}		
+	}
+	
+	if(argc>=3)
+	{
+		if(!(fout=fopen(argv[2],"wb")))
+		{
+			fclose(fin);
+			return showerr(errstr,ERR_FOUT,argv[2]);
+		}
+	}
+
+	if(!inittape(&tape,TAPESIZE))
+	{
+		fclose(fout);
+		fclose(fin);
+		return showerr(errstr,ERR_MEMTAPE,NULL);
+	}
+	
+	if(!(prog=malloc(sizeof(ip_t)*(PROGSIZE+1))))
+	{
+		destroytape(&tape);
+		fclose(fout);
+		fclose(fin);
+		return showerr(errstr,ERR_MEMPROG,NULL);
+	}
+	
+	bfevalstream(fin,fout,&tape,prog);
+	
 	free(prog);
+	destroytape(&tape);
+	fclose(fout);
+	fclose(fin);
 	
 	return 0;
 }
