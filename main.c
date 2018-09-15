@@ -21,9 +21,9 @@ enum STATE
 
 static const char *state[]={
 	"Normal Operation",
-	"Can not SUCC PTR",
-	"Can not PRED PTR",
-	"Long while loop, check your bf code",
+	"Can not SUCC PTR, increase TAPESIZE",
+	"Can not PRED PTR, check your bf code",
+	"Long while loop, check your bf code or increase PROGSIZE",
 	"] not match [, check your bf code",
 	"Can not access input File:",
 	"Can not access output File:",
