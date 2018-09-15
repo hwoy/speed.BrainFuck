@@ -1,4 +1,4 @@
-# my Brainf**k Interpreter in Not just a Snippet.
+# my Brainf**k Interpreter is Not just a Snippet.
 - No more special library
 - No memory leak (tested by valgrind)
 - Maximum portability
