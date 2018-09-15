@@ -52,7 +52,7 @@ int elembf(ip_t ip, const ip_t *bfip)
 	return (ip==*bfip) ? 1 : ((!*bfip) ? 0 : elembf(ip,bfip+1));
 }
 
-static const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n,int *bfno)
+static const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n)
 {
 	const ip_t *ip = begin;
 	
@@ -64,11 +64,11 @@ static const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n,int *bfno
 		if(n) ++ip;
 	}
 	
-	*bfno=n;
+
 	return ip;
 }
 
-static const ip_t* closebracket(const ip_t *rbegin,const ip_t *rend,int n,int *bfno)
+static const ip_t* closebracket(const ip_t *rbegin,const ip_t *rend,int n)
 {
 	const ip_t *ip = rbegin;
 	
@@ -80,7 +80,7 @@ static const ip_t* closebracket(const ip_t *rbegin,const ip_t *rend,int n,int *b
 		if(n) --ip;
 	}
 	
-	*bfno=n;
+
 	return ip;
 }
 
@@ -104,9 +104,9 @@ static int bfpredptr(tape_t* tape)
 	return (tape->ptr<= tape->bptr) ? BF_PREDPTR : (--tape->ptr,BF_NORMAL) ;
 }
 
-static int bfputvalue(tape_t* tape,FILE *fp)
+static int bfputvalue(tape_t* tape)
 {
-	return fputc(*tape->ptr,fp), fflush(fp),BF_NORMAL;
+	return fputc(*tape->ptr,fp),BF_NORMAL;
 }
 
 static int bfgetvalue(tape_t* tape)
@@ -130,11 +130,11 @@ int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape,FILE *fp)
 			case '>': bfno=bfsuccptr(tape); break;
 			case '<': bfno=bfpredptr(tape); break;
 			
-			case '.': bfno=bfputvalue(tape,fp); break;
+			case '.': bfno=bfputvalue(tape); fflush(fp); break;
 			case ',': bfno=bfgetvalue(tape); break;
 			
-			case '[': if(!*tape->ptr) ip=openbracket(++ip,end,1,&bfno); break;
-			case ']': if(*tape->ptr) ip=closebracket(--ip,begin-1,-1,&bfno); break;
+			case '[': if(!*tape->ptr) ip=openbracket(++ip,end,1); break;
+			case ']': if(*tape->ptr) ip=closebracket(--ip,begin-1,-1); break;
 			
 			default: break;
 		}
