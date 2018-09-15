@@ -56,7 +56,7 @@
 
 enum STATE
 {
-	STATE_NORMAL_EVAL=BF_NORMAL,
+	STATE_EVAL_NORMAL=BF_NORMAL,
 	STATE_ERR_EVAL_SUCCPTR=BF_SUCCPTR,
 	STATE_ERR_EVAL_PREDPTR=BF_PREDPTR,
 	STATE_ERR_EVAL_WHILE,
@@ -144,9 +144,9 @@ static unsigned int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,prog_t *prog)
 {
 	size_t size;
 	int inst;
-	unsigned int state=STATE_NORMAL_EVAL;
+	unsigned int state=STATE_EVAL_NORMAL;
 	
-	while((state==STATE_NORMAL_EVAL) && (inst=fgetc(fin))!=EOF)
+	while((state==STATE_EVAL_NORMAL) && (inst=fgetc(fin))!=EOF)
 	{
 		switch(inst)
 		{
@@ -222,7 +222,7 @@ int main(int argc ,const char *argv[])
 	
 	{
 		unsigned int state;
-		if((state=bfevalstream(fin,fout,&tape,&prog))!=STATE_NORMAL_EVAL)
+		if((state=bfevalstream(fin,fout,&tape,&prog))!=STATE_EVAL_NORMAL)
 			ret=showerr(statemsg,state,NULL);
 	}
 	
