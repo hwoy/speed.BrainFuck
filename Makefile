@@ -1,4 +1,4 @@
-BIN = cbf
+BIN = bfc
 CC = gcc
 CFLAGS = -O3 -std=c89 -pedantic
 

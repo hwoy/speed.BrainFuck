@@ -14,11 +14,11 @@ size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 	
 	while(n && i<size && ((ch=fgetc(fp))!=EOF))
 	{
-		if(!elembf(ch,bfcode)) continue;
-		
-		if(ch==']') --n;
-		else if(ch=='[') ++n;
-		prog[i++]=ch;
+		if(elembf(ch,bfcode))
+		{
+			if(ch==INST_ENDWHILE) --n; else if(ch==INST_WHILE) ++n;
+			prog[i++]=ch;
+		}
 	}
 	
 	return i;
@@ -69,14 +69,14 @@ int main(int argc ,const char *argv[])
 	{
 		switch(ch)
 		{
-			case '[': *prog=ch;size=gbracket(fin,prog+1,PROGSIZE-1,1)+1; break;
-			case ']': break;
-			case '+': 
-			case '-': 
-			case '>': 
-			case '<': 
-			case '.': 
-			case ',': *prog=ch;size=1; break;
+			case INST_WHILE: *prog=ch;size=gbracket(fin,prog+1,PROGSIZE-1,1)+1; break;
+			case INST_ENDWHILE: break;
+			case INST_SUCCVALUE: 
+			case INST_PREDVALUE: 
+			case INST_SUCCPTR: 
+			case INST_PREDPTR: 
+			case INST_PUTVALUE: 
+			case INST_GETVALUE: *prog=ch;size=1; break;
 			default: continue;
 		}
 		

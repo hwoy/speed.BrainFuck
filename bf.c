@@ -3,7 +3,16 @@
 
 #include "bf.h"
 
-const ip_t bfcode[]="+-><.,[]";
+const ip_t bfcode[]={	
+	INST_SUCCVALUE,
+	INST_PREDVALUE,
+	INST_SUCCPTR,
+	INST_PREDPTR,
+	INST_PUTVALUE,
+	INST_GETVALUE,
+	INST_WHILE,
+	INST_ENDWHILE,
+	0};
 
 const cell_t* inittape(tape_t *tape, size_t size)
 {
@@ -40,8 +49,8 @@ static const ip_t* openbracket(const ip_t *begin,const ip_t *end,int n)
 	
 	while(n && ip!=end)
 	{
-		if(*ip==']') --n;
-		else if(*ip=='[') ++n;
+		if(*ip==INST_ENDWHILE) --n;
+		else if(*ip==INST_WHILE) ++n;
 		
 		if(n) ++ip;
 	}
@@ -56,8 +65,8 @@ static const ip_t* closebracket(const ip_t *rbegin,const ip_t *rend,int n)
 	
 	while(n && ip!=rend)
 	{
-		if(*ip==']') --n;
-		else if(*ip=='[') ++n;
+		if(*ip==INST_ENDWHILE) --n;
+		else if(*ip==INST_WHILE) ++n;
 		
 		if(n) --ip;
 	}
@@ -106,17 +115,17 @@ int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape,FILE *fp)
 	{
 		switch(*ip)
 		{
-			case '+': bfno=bfsuccvalue(tape); break;
-			case '-': bfno=bfpredvalue(tape); break;
+			case INST_SUCCVALUE: bfno=bfsuccvalue(tape); break;
+			case INST_PREDVALUE: bfno=bfpredvalue(tape); break;
 			
-			case '>': bfno=bfsuccptr(tape); break;
-			case '<': bfno=bfpredptr(tape); break;
+			case INST_SUCCPTR: bfno=bfsuccptr(tape); break;
+			case INST_PREDPTR: bfno=bfpredptr(tape); break;
 			
-			case '.': bfno=bfputvalue(tape,fp); break;
-			case ',': bfno=bfgetvalue(tape); break;
+			case INST_PUTVALUE: bfno=bfputvalue(tape,fp); break;
+			case INST_GETVALUE: bfno=bfgetvalue(tape); break;
 			
-			case '[': if(!*tape->ptr) ip=openbracket(++ip,end,1); break;
-			case ']': if(*tape->ptr) ip=closebracket(--ip,begin-1,-1); break;
+			case INST_WHILE: if(!*tape->ptr) ip=openbracket(++ip,end,1); break;
+			case INST_ENDWHILE: if(*tape->ptr) ip=closebracket(--ip,begin-1,-1); break;
 			
 			default: break;
 		}

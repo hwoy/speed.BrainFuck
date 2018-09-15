@@ -15,6 +15,19 @@ enum BFCODE
 	BF_NORMAL,BF_SUCCPTR,BF_PREDPTR
 };
 
+enum BFINST
+{
+	INST_SUCCVALUE='+',
+	INST_PREDVALUE='-',
+	INST_SUCCPTR='>',
+	INST_PREDPTR='<',
+	INST_PUTVALUE='.',
+	INST_GETVALUE=',',
+	INST_WHILE='[',
+	INST_ENDWHILE=']'
+	
+};
+
 extern const ip_t bfcode[];
 
 
