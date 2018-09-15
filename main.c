@@ -13,6 +13,47 @@
 
 #define BITPERBYTE 8
 
+
+#ifdef _WIN32
+
+	#if __STDC_VERSION__ >= 199901L
+
+		#include <inttypes.h>
+	
+		#ifdef _WIN64
+
+			#define SIZE_T PRIu64
+
+		#else
+	
+			#define SIZE_T PRIu32
+
+		#endif
+	
+	#else
+		
+		#define SIZE_T "u"
+		
+	#endif
+
+#else
+	
+	#if __STDC_VERSION__ >= 199901L
+	
+		#include <inttypes.h>
+	
+		#define SIZE_T "zu"
+	
+	#else
+	
+		#define SIZE_T "u"
+	
+	#endif
+
+
+#endif
+
+
 enum STATE
 {
 	STATE_NORMAL_EVAL=BF_NORMAL,
@@ -39,15 +80,11 @@ static const char *statemsg[]={
 	NULL
 };
 
-static int showerr(const char *statemsg[],size_t state,const char *str)
+static int showerr(const char *statemsg[],unsigned int state,const char *str)
 {
-	#if __STDC_VERSION__ >= 199901L
-	fprintf(stderr,"\nERROR %zu: %s %s\n",state,statemsg[state],str);
-	
-	#else
+
 	fprintf(stderr,"\nERROR %u: %s %s\n",state,statemsg[state],str);
 
-	#endif
 
 	return state;
 }
@@ -69,7 +106,13 @@ static int showhelp(const char *path)
 	fprintf(stderr,"USAGE: %s infile\n",path);
 	fprintf(stderr,"USAGE: %s infile outfile\n",path);
 	
-	fprintf(stderr,"\nTAPESIZE = %u, PROGSIZE = %u, size of a cell = %u bits\n",TAPESIZE,PROGSIZE,sizeof(cell_t)*BITPERBYTE);
+	fprintf(stderr,"\nTAPESIZE = %u, PROGSIZE = %u, size of a cell = %" SIZE_T " bits\n",
+	TAPESIZE,PROGSIZE,
+	#if !(__STDC_VERSION__ >= 199901L)
+	(unsigned int)
+	#endif
+	sizeof(cell_t)*BITPERBYTE);
+
 	
 	return 1;
 }
@@ -77,7 +120,7 @@ static int showhelp(const char *path)
 
 static size_t gbracket(FILE *fp,ip_t progptr,size_t size,int n)
 {
-	size_t i=0;
+	size_t i=0; 
 	int inst;
 	
 	while(n && i<size && ((inst=fgetc(fp))!=EOF))
@@ -97,8 +140,9 @@ static size_t gbracket(FILE *fp,ip_t progptr,size_t size,int n)
 
 static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,prog_t *prog)
 {
-	size_t size,state=STATE_NORMAL_EVAL;
+	size_t size;
 	int inst;
+	unsigned int state=STATE_NORMAL_EVAL;
 	
 	while((state==STATE_NORMAL_EVAL) && (inst=fgetc(fin))!=EOF)
 	{
@@ -175,7 +219,7 @@ int main(int argc ,const char *argv[])
 	}
 	
 	{
-		size_t state;
+		unsigned int state;
 		if((state=bfevalstream(fin,fout,&tape,&prog))!=STATE_NORMAL_EVAL)
 			ret=showerr(statemsg,state,NULL);
 	}

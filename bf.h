@@ -53,7 +53,7 @@ void destroyprog(prog_t *prog);
 
 int eleminst(inst_t inst, const inst_t *bfinst);
 
-int bfeval(const_ip_t begin,const_ip_t end,tape_t* tape,FILE *fp);
+unsigned int bfeval(const_ip_t begin,const_ip_t end,tape_t* tape,FILE *fp);
 
 
 #endif

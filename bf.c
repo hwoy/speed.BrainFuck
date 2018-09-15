@@ -89,7 +89,7 @@ static const_ip_t closebracket(const_ip_t rbegin,const_ip_t rend,int n)
 #if __STDC_VERSION__ >= 199901L
 inline
 #endif
-static int bfsuccvalue(tape_t* tape)
+static unsigned int bfsuccvalue(tape_t* tape)
 {
 	return ++(*tape->ptr),BF_NORMAL ;
 }
@@ -97,7 +97,7 @@ static int bfsuccvalue(tape_t* tape)
 #if __STDC_VERSION__ >= 199901L
 inline
 #endif
-static int bfpredvalue(tape_t* tape)
+static unsigned int bfpredvalue(tape_t* tape)
 {
 	return --(*tape->ptr),BF_NORMAL ;
 }
@@ -105,7 +105,7 @@ static int bfpredvalue(tape_t* tape)
 #if __STDC_VERSION__ >= 199901L
 inline
 #endif
-static int bfsuccptr(tape_t* tape)
+static unsigned int bfsuccptr(tape_t* tape)
 {
 	return (tape->ptr+1 >= tape->bptr+tape->size) ? BF_SUCCPTR : (++tape->ptr,BF_NORMAL) ;
 }
@@ -113,7 +113,7 @@ static int bfsuccptr(tape_t* tape)
 #if __STDC_VERSION__ >= 199901L
 inline
 #endif
-static int bfpredptr(tape_t* tape)
+static unsigned int bfpredptr(tape_t* tape)
 {
 	return (tape->ptr<= tape->bptr) ? BF_PREDPTR : (--tape->ptr,BF_NORMAL) ;
 }
@@ -121,7 +121,7 @@ static int bfpredptr(tape_t* tape)
 #if __STDC_VERSION__ >= 199901L
 inline
 #endif
-static int bfputvalue(tape_t* tape,FILE *fp)
+static unsigned int bfputvalue(tape_t* tape,FILE *fp)
 {
 	return fputc(*tape->ptr,fp),fflush(fp),BF_NORMAL;
 }
@@ -129,16 +129,16 @@ static int bfputvalue(tape_t* tape,FILE *fp)
 #if __STDC_VERSION__ >= 199901L
 inline
 #endif
-static int bfgetvalue(tape_t* tape)
+static unsigned int bfgetvalue(tape_t* tape)
 {
 	return *tape->ptr=getchar(),BF_NORMAL;
 }
 
-int bfeval(const_ip_t begin,const_ip_t end,tape_t* tape,FILE *fp)
+unsigned int bfeval(const_ip_t begin,const_ip_t end,tape_t* tape,FILE *fp)
 {
 	const_ip_t ip = begin;
 	
-	int bfno=BF_NORMAL;
+	unsigned int bfno=BF_NORMAL;
 	
 	while(ip!=end && (bfno==BF_NORMAL))
 	{
