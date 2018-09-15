@@ -1,0 +1,30 @@
+#ifndef __BF_H__
+#define __BF_H__
+
+typedef char cell_t;
+typedef char ip_t;
+
+typedef struct{
+	cell_t *ptr;
+	cell_t *bptr;
+	size_t size;
+}tape_t;
+
+enum BFCODE
+{
+	BF_NORMAL,BF_SUCCPTR,BF_PREDPTR
+};
+
+extern const ip_t bfcode[];
+
+
+const cell_t* inittape(tape_t *tape, size_t size);
+
+void destroytape(tape_t *tape);
+
+int elembf(ip_t ip, const ip_t *bfip);
+
+int bfeval(const ip_t *begin,const ip_t *end,tape_t* tape,FILE *fp);
+
+
+#endif
