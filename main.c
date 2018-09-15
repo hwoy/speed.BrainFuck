@@ -108,9 +108,11 @@ static int showhelp(const char *path)
 	
 	fprintf(stderr,"\nTAPESIZE = %u, PROGSIZE = %u, size of a cell = %" SIZE_T " bits\n\n",
 	TAPESIZE,PROGSIZE,
+	
 	#if !(__STDC_VERSION__ >= 199901L)
 	(unsigned int)
 	#endif
+	
 	sizeof(cell_t)*BITPERBYTE);
 
 	
