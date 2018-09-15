@@ -59,7 +59,7 @@ static int showhelp(const char *path)
 }
 
 
-static size_t gbracket(FILE *fp,ip_t prog,size_t size,int n)
+static size_t gbracket(FILE *fp,ip_t progptr,size_t size,int n)
 {
 	size_t i=0;
 	int inst;
@@ -71,14 +71,15 @@ static size_t gbracket(FILE *fp,ip_t prog,size_t size,int n)
 			if(i>=size) return i;
 				
 			if(inst==INST_ENDWHILE) --n; else if(inst==INST_WHILE) ++n;
-			prog[i++]=inst;
+			
+			progptr[i++]=inst;
 		}
 	}
 	
 	return i;
 }
 
-static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t prog,size_t progsize)
+static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,prog_t *prog)
 {
 	size_t size,state=STATE_NORMAL_EVAL;
 	int inst;
@@ -87,9 +88,12 @@ static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t prog,size_t progs
 	{
 		switch(inst)
 		{
-			case INST_WHILE: *prog=inst;size=gbracket(fin,prog+1,progsize-1,1)+1;
-							if(size>=progsize) 
+			case INST_WHILE: *prog->ptr=inst;
+							size=gbracket(fin,prog->ptr+1,prog->size-1,1)+1;
+							
+							if(size>=prog->size) 
 								return STATE_ERR_EVAL_WHILE;
+							
 							break;
 							
 			case INST_ENDWHILE: return STATE_ERR_EVAL_ENDWHILE;
@@ -99,12 +103,12 @@ static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t prog,size_t progs
 			case INST_SUCCPTR: 
 			case INST_PREDPTR: 
 			case INST_PUTVALUE: 
-			case INST_GETVALUE: *prog=inst;size=1; break;
+			case INST_GETVALUE: *prog->ptr=inst;size=1; break;
 			
 			default: continue;
 		}
 		
-		state=bfeval(prog,prog+size,tape,fout);
+		state=bfeval(prog->ptr,prog->ptr+size,tape,fout);
 	}
 	
 	return state;
@@ -116,7 +120,7 @@ int main(int argc ,const char *argv[])
 {
 	FILE *fin,*fout=stdout;
 	tape_t tape;
-	ip_t prog;
+	prog_t prog;
 	int ret=0;
 	
 	if(argc<=1)
@@ -146,7 +150,7 @@ int main(int argc ,const char *argv[])
 		return showerr(statemsg,STATE_ERR_MEMTAPE,NULL);
 	}
 	
-	if(!(prog=malloc(sizeof(ip_t)*PROGSIZE)))
+	if(!initprog(&prog,PROGSIZE))
 	{
 		destroytape(&tape);
 		fclose(fout);
@@ -156,11 +160,11 @@ int main(int argc ,const char *argv[])
 	
 	{
 		size_t state;
-		if((state=bfevalstream(fin,fout,&tape,prog,PROGSIZE))!=STATE_NORMAL_EVAL)
+		if((state=bfevalstream(fin,fout,&tape,&prog))!=STATE_NORMAL_EVAL)
 			ret=showerr(statemsg,state,NULL);
 	}
 	
-	free(prog);
+	destroyprog(&prog);
 	destroytape(&tape);
 	fclose(fout);
 	fclose(fin);

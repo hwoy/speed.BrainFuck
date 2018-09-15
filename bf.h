@@ -17,6 +17,11 @@ typedef struct{
 	size_t size;
 }tape_t;
 
+typedef struct{
+	ip_t ptr;
+	size_t size;
+}prog_t;
+
 enum BFCODE
 {
 	BF_NORMAL,BF_SUCCPTR,BF_PREDPTR
@@ -39,8 +44,12 @@ extern const inst_t bfinst[];
 
 
 const cell_t* inittape(tape_t *tape, size_t size);
-
 void destroytape(tape_t *tape);
+
+const_ip_t initprog(prog_t *prog, size_t size);
+void destroyprog(prog_t *prog);
+
+
 
 int eleminst(inst_t inst, const inst_t *bfinst);
 
