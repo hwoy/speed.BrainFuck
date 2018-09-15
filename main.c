@@ -7,7 +7,7 @@
 #define PROGSIZE (64*1024)
 
 
-size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
+static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 {
 	size_t i=0;
 	int ch;
