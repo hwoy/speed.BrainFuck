@@ -1,7 +1,12 @@
 #ifndef __BF_H__
 #define __BF_H__
 
-typedef char cell_t;
+#ifndef CELL_T
+#define CELL_T char
+#endif
+
+
+typedef CELL_T cell_t;
 typedef char ip_t;
 
 typedef struct{
