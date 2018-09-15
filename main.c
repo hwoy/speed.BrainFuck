@@ -34,7 +34,14 @@ static const char *statemsg[]={
 
 static int showerr(const char *statemsg[],size_t state,const char *str)
 {
+	#if __STDC_VERSION__ >= 199901L
+	fprintf(stderr,"\nERROR %zu: %s %s\n",state,statemsg[state],str);
+	
+	#else
 	fprintf(stderr,"\nERROR %u: %s %s\n",state,statemsg[state],str);
+
+	#endif
+
 	return state;
 }
 
