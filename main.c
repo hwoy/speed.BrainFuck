@@ -11,6 +11,8 @@
 #define PROGSIZE (64*1024)
 #endif
 
+#define BITPERBYTE 8
+
 enum STATE
 {
 	STATE_NORMAL_EVAL=BF_NORMAL,
@@ -67,7 +69,7 @@ static int showhelp(const char *path)
 	fprintf(stderr,"USAGE: %s infile\n",path);
 	fprintf(stderr,"USAGE: %s infile outfile\n",path);
 	
-	fprintf(stderr,"\nTAPESIZE = %u, PROGSIZE = %u\n",TAPESIZE,PROGSIZE);
+	fprintf(stderr,"\nTAPESIZE = %u, PROGSIZE = %u, size of a cell = %u bits\n",TAPESIZE,PROGSIZE,sizeof(cell_t)*BITPERBYTE);
 	
 	return 1;
 }
