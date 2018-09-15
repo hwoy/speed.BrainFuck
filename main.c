@@ -8,15 +8,15 @@
 
 enum STATE
 {
-	NORMAL=BF_NORMAL,
-	ERR_EVAL_SUCCPTR=BF_SUCCPTR,
-	ERR_EVAL_PREDPTR=BF_PREDPTR,
-	ERR_EVAL_LONGWHILE,
-	ERR_EVAL_ENDWHILE,
-	ERR_FIN,
-	ERR_FOUT,
-	ERR_MEMTAPE,
-	ERR_MEMPROG
+	STATE_EVAL_NORMAL=BF_NORMAL,
+	STATE_ERR_EVAL_SUCCPTR=BF_SUCCPTR,
+	STATE_ERR_EVAL_PREDPTR=BF_PREDPTR,
+	STATE_ERR_EVAL_LONGWHILE,
+	STATE_ERR_EVAL_ENDWHILE,
+	STATE_ERR_FIN,
+	STATE_ERR_FOUT,
+	STATE_ERR_MEMTAPE,
+	STATE_ERR_MEMPROG
 };
 
 static const char *state[]={
@@ -81,16 +81,18 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog,size_t progsize)
 {
 	size_t size;
-	int inst,stateid=NORMAL;
+	int inst,stateid=STATE_EVAL_NORMAL;
 	
-	while((stateid==NORMAL) && (inst=fgetc(fin))!=EOF)
+	while((stateid==STATE_EVAL_NORMAL) && (inst=fgetc(fin))!=EOF)
 	{
 		switch(inst)
 		{
 			case INST_WHILE: *prog=inst;size=gbracket(fin,prog+1,progsize-1,1)+1;
-							if(size>=progsize) return ERR_EVAL_LONGWHILE; break;
+							if(size>=progsize) 
+								return STATE_ERR_EVAL_LONGWHILE;
+							break;
 							
-			case INST_ENDWHILE: return ERR_EVAL_ENDWHILE;
+			case INST_ENDWHILE: return STATE_ERR_EVAL_ENDWHILE;
 			
 			case INST_SUCCVALUE: 
 			case INST_PREDVALUE: 
@@ -124,7 +126,7 @@ int main(int argc ,const char *argv[])
 	{
 		if(!(fin=fopen(argv[1],"r")))
 		{
-			return showerr(state,ERR_FIN,argv[1]);
+			return showerr(state,STATE_ERR_FIN,argv[1]);
 		}		
 	}
 	
@@ -133,7 +135,7 @@ int main(int argc ,const char *argv[])
 		if(!(fout=fopen(argv[2],"wb")))
 		{
 			fclose(fin);
-			return showerr(state,ERR_FOUT,argv[2]);
+			return showerr(state,STATE_ERR_FOUT,argv[2]);
 		}
 	}
 
@@ -141,7 +143,7 @@ int main(int argc ,const char *argv[])
 	{
 		fclose(fout);
 		fclose(fin);
-		return showerr(state,ERR_MEMTAPE,NULL);
+		return showerr(state,STATE_ERR_MEMTAPE,NULL);
 	}
 	
 	if(!(prog=malloc(sizeof(ip_t)*PROGSIZE)))
@@ -149,12 +151,12 @@ int main(int argc ,const char *argv[])
 		destroytape(&tape);
 		fclose(fout);
 		fclose(fin);
-		return showerr(state,ERR_MEMPROG,NULL);
+		return showerr(state,STATE_ERR_MEMPROG,NULL);
 	}
 	
 	{
 		int stateid;
-		if((stateid=bfevalstream(fin,fout,&tape,prog,PROGSIZE))!=NORMAL)
+		if((stateid=bfevalstream(fin,fout,&tape,prog,PROGSIZE))!=STATE_EVAL_NORMAL)
 			ret=showerr(state,stateid,NULL);
 	}
 	
