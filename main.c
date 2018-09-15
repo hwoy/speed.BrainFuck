@@ -6,15 +6,21 @@
 #define TAPESIZE 1024
 #define PROGSIZE (64*1024)
 
-enum ERR
+enum STATE
 {
+	NORMAL=BF_NORMAL,
+	ERR_BF_SUCCPTR=BF_SUCCPTR,
+	ERR_BF_PREDPTR=BF_PREDPTR,
 	ERR_FIN,
 	ERR_FOUT,
 	ERR_MEMTAPE,
 	ERR_MEMPROG
 };
 
-static const char *errstr[]={
+static const char *state[]={
+	"Normal Operation",
+	"Can not SUCC PTR",
+	"Can not PRED PTR",
 	"Can not access input File:",
 	"Can not access output File:",
 	"Can not alloc memory for TAPE",
@@ -58,9 +64,9 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog)
 {
 	size_t size;
-	int inst;
+	int inst,state=0;
 	
-	while((inst=fgetc(fin))!=EOF)
+	while((state==NORMAL) && (inst=fgetc(fin))!=EOF)
 	{
 		switch(inst)
 		{
@@ -75,10 +81,10 @@ static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog)
 			default: continue;
 		}
 		
-		bfeval(prog,prog+size,tape,fout);
+		state=bfeval(prog,prog+size,tape,fout);
 	}
 	
-	return 0;
+	return state;
 	
 }
 
@@ -96,7 +102,7 @@ int main(int argc ,const char *argv[])
 	{
 		if(!(fin=fopen(argv[1],"r")))
 		{
-			return showerr(errstr,ERR_FIN,argv[1]);
+			return showerr(state,ERR_FIN,argv[1]);
 		}		
 	}
 	
@@ -105,7 +111,7 @@ int main(int argc ,const char *argv[])
 		if(!(fout=fopen(argv[2],"wb")))
 		{
 			fclose(fin);
-			return showerr(errstr,ERR_FOUT,argv[2]);
+			return showerr(state,ERR_FOUT,argv[2]);
 		}
 	}
 
@@ -113,7 +119,7 @@ int main(int argc ,const char *argv[])
 	{
 		fclose(fout);
 		fclose(fin);
-		return showerr(errstr,ERR_MEMTAPE,NULL);
+		return showerr(state,ERR_MEMTAPE,NULL);
 	}
 	
 	if(!(prog=malloc(sizeof(ip_t)*(PROGSIZE+1))))
@@ -121,7 +127,7 @@ int main(int argc ,const char *argv[])
 		destroytape(&tape);
 		fclose(fout);
 		fclose(fin);
-		return showerr(errstr,ERR_MEMPROG,NULL);
+		return showerr(state,ERR_MEMPROG,NULL);
 	}
 	
 	bfevalstream(fin,fout,&tape,prog);
