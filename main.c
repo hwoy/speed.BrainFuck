@@ -9,8 +9,10 @@
 enum STATE
 {
 	NORMAL=BF_NORMAL,
-	ERR_BF_SUCCPTR=BF_SUCCPTR,
-	ERR_BF_PREDPTR=BF_PREDPTR,
+	ERR_EVAL_SUCCPTR=BF_SUCCPTR,
+	ERR_EVAL_PREDPTR=BF_PREDPTR,
+	ERR_EVAL_LONGWHILE,
+	ERR_EVAL_ENDWHILE,
 	ERR_FIN,
 	ERR_FOUT,
 	ERR_MEMTAPE,
@@ -21,6 +23,8 @@ static const char *state[]={
 	"Normal Operation",
 	"Can not SUCC PTR",
 	"Can not PRED PTR",
+	"Long while loop, check your bf code",
+	"] not match [, check your bf code",
 	"Can not access input File:",
 	"Can not access output File:",
 	"Can not alloc memory for TAPE",
@@ -64,14 +68,14 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog)
 {
 	size_t size;
-	int inst,state=0;
+	int inst,stateid=NORMAL;
 	
-	while((state==NORMAL) && (inst=fgetc(fin))!=EOF)
+	while((stateid==NORMAL) && (inst=fgetc(fin))!=EOF)
 	{
 		switch(inst)
 		{
 			case INST_WHILE: *prog=inst;size=gbracket(fin,prog+1,PROGSIZE-1,1)+1; break;
-			case INST_ENDWHILE: break;
+			case INST_ENDWHILE: return ERR_EVAL_ENDWHILE;
 			case INST_SUCCVALUE: 
 			case INST_PREDVALUE: 
 			case INST_SUCCPTR: 
@@ -81,10 +85,10 @@ static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog)
 			default: continue;
 		}
 		
-		state=bfeval(prog,prog+size,tape,fout);
+		stateid=bfeval(prog,prog+size,tape,fout);
 	}
 	
-	return state;
+	return stateid;
 	
 }
 
@@ -94,6 +98,7 @@ int main(int argc ,const char *argv[])
 	FILE *fin,*fout=stdout;
 	tape_t tape;
 	ip_t *prog;
+	int ret=0;
 	
 	if(argc<=1)
 		return showhelp(argv[0]);
@@ -130,12 +135,16 @@ int main(int argc ,const char *argv[])
 		return showerr(state,ERR_MEMPROG,NULL);
 	}
 	
-	bfevalstream(fin,fout,&tape,prog);
+	{
+		int stateid;
+		if((stateid=bfevalstream(fin,fout,&tape,prog))!=NORMAL)
+			ret=showerr(state,stateid,NULL);
+	}
 	
 	free(prog);
 	destroytape(&tape);
 	fclose(fout);
 	fclose(fin);
 	
-	return 0;
+	return ret;
 }
