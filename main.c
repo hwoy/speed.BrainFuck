@@ -11,7 +11,7 @@ enum STATE
 	STATE_EVAL_NORMAL=BF_NORMAL,
 	STATE_ERR_EVAL_SUCCPTR=BF_SUCCPTR,
 	STATE_ERR_EVAL_PREDPTR=BF_PREDPTR,
-	STATE_ERR_EVAL_LONGWHILE,
+	STATE_ERR_EVAL_WHILE,
 	STATE_ERR_EVAL_ENDWHILE,
 	STATE_ERR_FIN,
 	STATE_ERR_FOUT,
@@ -23,7 +23,7 @@ static const char *statemsg[]={
 	"Normal Operation",
 	"Can not SUCC PTR, increase TAPESIZE",
 	"Can not PRED PTR, check your bf code",
-	"Long while loop, check your bf code or increase PROGSIZE",
+	"Long while loop or [ not match ], check your bf code or increase PROGSIZE",
 	"] not match [, check your bf code",
 	"Can not access input File:",
 	"Can not access output File:",
@@ -89,7 +89,7 @@ static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog,size_t prog
 		{
 			case INST_WHILE: *prog=inst;size=gbracket(fin,prog+1,progsize-1,1)+1;
 							if(size>=progsize) 
-								return STATE_ERR_EVAL_LONGWHILE;
+								return STATE_ERR_EVAL_WHILE;
 							break;
 							
 			case INST_ENDWHILE: return STATE_ERR_EVAL_ENDWHILE;
