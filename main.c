@@ -3,8 +3,13 @@
 
 #include "bf.h"
 
-#define TAPESIZE 1024
+#ifndef TAPESIZE
+#define TAPESIZE (1*1024)
+#endif
+
+#ifndef PROGSIZE
 #define PROGSIZE (64*1024)
+#endif
 
 enum STATE
 {
