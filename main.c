@@ -57,6 +57,8 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 	{
 		if(elembf(inst,bfcode))
 		{
+			if(i>=size) return i;
+				
 			if(inst==INST_ENDWHILE) --n; else if(inst==INST_WHILE) ++n;
 			prog[i++]=inst;
 		}
@@ -65,7 +67,7 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 	return i;
 }
 
-static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog)
+static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog,size_t progsize)
 {
 	size_t size;
 	int inst,stateid=NORMAL;
@@ -74,14 +76,18 @@ static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog)
 	{
 		switch(inst)
 		{
-			case INST_WHILE: *prog=inst;size=gbracket(fin,prog+1,PROGSIZE-1,1)+1; break;
+			case INST_WHILE: *prog=inst;size=gbracket(fin,prog+1,progsize-1,1)+1;
+							if(prog[size-1] != INST_ENDWHILE) return ERR_EVAL_LONGWHILE; break;
+							
 			case INST_ENDWHILE: return ERR_EVAL_ENDWHILE;
+			
 			case INST_SUCCVALUE: 
 			case INST_PREDVALUE: 
 			case INST_SUCCPTR: 
 			case INST_PREDPTR: 
 			case INST_PUTVALUE: 
 			case INST_GETVALUE: *prog=inst;size=1; break;
+			
 			default: continue;
 		}
 		
@@ -137,7 +143,7 @@ int main(int argc ,const char *argv[])
 	
 	{
 		int stateid;
-		if((stateid=bfevalstream(fin,fout,&tape,prog))!=NORMAL)
+		if((stateid=bfevalstream(fin,fout,&tape,prog,PROGSIZE))!=NORMAL)
 			ret=showerr(state,stateid,NULL);
 	}
 	
