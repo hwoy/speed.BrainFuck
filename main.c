@@ -77,7 +77,7 @@ static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog,size_t prog
 		switch(inst)
 		{
 			case INST_WHILE: *prog=inst;size=gbracket(fin,prog+1,progsize-1,1)+1;
-							if(prog[size-1] != INST_ENDWHILE) return ERR_EVAL_LONGWHILE; break;
+							if(size>=progsize) return ERR_EVAL_LONGWHILE; break;
 							
 			case INST_ENDWHILE: return ERR_EVAL_ENDWHILE;
 			
