@@ -16,7 +16,7 @@
 
 #ifdef _WIN32
 
-	#if __STDC_VERSION__ >= 199901L
+	#if (__STDC_VERSION__ >= 199901L)
 
 		#include <inttypes.h>
 	

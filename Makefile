@@ -7,7 +7,9 @@ PROGSIZE=\(64*1024\)
 
 STDC90=-std=c90 -pedantic
 
-GNUC99=-std=c99
+STDC99=-std=c99 -pedantic
+
+GNUC99=-std=gnu99
 
 STD=$(STDC90)
 
