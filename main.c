@@ -106,7 +106,7 @@ static int showhelp(const char *path)
 	fprintf(stderr,"USAGE: %s infile\n",path);
 	fprintf(stderr,"USAGE: %s infile outfile\n",path);
 	
-	fprintf(stderr,"\nTAPESIZE = %u, PROGSIZE = %u, size of a cell = %" SIZE_T " bits\n",
+	fprintf(stderr,"\nTAPESIZE = %u, PROGSIZE = %u, size of a cell = %" SIZE_T " bits\n\n",
 	TAPESIZE,PROGSIZE,
 	#if !(__STDC_VERSION__ >= 199901L)
 	(unsigned int)
