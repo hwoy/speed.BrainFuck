@@ -56,7 +56,7 @@ int eleminst(inst_t inst, const inst_t *bfinst)
 	return (inst==*bfinst) ? 1 : ((!*bfinst) ? 0 : eleminst(inst,bfinst+1));
 }
 
-static const_ip_t openbracket(const_ip_t begin,const_ip_t end,int n)
+static const_ip_t bfopenbracket(const_ip_t begin,const_ip_t end,int n)
 {
 	const_ip_t ip = begin;
 	
@@ -71,7 +71,7 @@ static const_ip_t openbracket(const_ip_t begin,const_ip_t end,int n)
 	return ip;
 }
 
-static const_ip_t closebracket(const_ip_t rbegin,const_ip_t rend,int n)
+static const_ip_t bfclosebracket(const_ip_t rbegin,const_ip_t rend,int n)
 {
 	const_ip_t ip = rbegin;
 	
@@ -153,8 +153,8 @@ unsigned int bfeval(const_ip_t begin,const_ip_t end,tape_t* tape,FILE *fp)
 			case INST_PUTVALUE:	bfputvalue(tape,fp); break;
 			case INST_GETVALUE:	bfgetvalue(tape); break;
 			
-			case INST_WHILE:		if(!*tape->ptr) ip=openbracket(++ip,end,1); break;
-			case INST_ENDWHILE:	if(*tape->ptr) ip=closebracket(--ip,begin-1,-1); break;
+			case INST_WHILE:		if(!*tape->ptr)	ip=bfopenbracket(++ip,end,1); break;
+			case INST_ENDWHILE:	if(*tape->ptr)	ip=bfclosebracket(--ip,begin-1,-1); break;
 			
 			default: break;
 		}
