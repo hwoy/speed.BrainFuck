@@ -32,10 +32,10 @@ static const char *statemsg[]={
 	NULL
 };
 
-static int showerr(const char *errstr[],size_t errid,const char *str)
+static int showerr(const char *statemsg[],size_t state,const char *str)
 {
-	fprintf(stderr,"\nERROR %u: %s %s\n",errid,errstr[errid],str);
-	return errid;
+	fprintf(stderr,"\nERROR %u: %s %s\n",state,statemsg[state],str);
+	return state;
 }
 
 static const char *grappath(const char *path)
@@ -80,8 +80,8 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 
 static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog,size_t progsize)
 {
-	size_t size;
-	int inst,state=STATE_EVAL_NORMAL;
+	size_t size,state=STATE_EVAL_NORMAL;
+	int inst;
 	
 	while((state==STATE_EVAL_NORMAL) && (inst=fgetc(fin))!=EOF)
 	{
@@ -155,7 +155,7 @@ int main(int argc ,const char *argv[])
 	}
 	
 	{
-		int state;
+		size_t state;
 		if((state=bfevalstream(fin,fout,&tape,prog,PROGSIZE))!=STATE_EVAL_NORMAL)
 			ret=showerr(statemsg,state,NULL);
 	}
