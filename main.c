@@ -67,6 +67,8 @@ static int showhelp(const char *path)
 	fprintf(stderr,"USAGE: %s infile\n",path);
 	fprintf(stderr,"USAGE: %s infile outfile\n",path);
 	
+	fprintf(stderr,"\nTAPESIZE = %u, PROGSIZE = %u\n",TAPESIZE,PROGSIZE);
+	
 	return 1;
 }
 
