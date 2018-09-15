@@ -5,7 +5,13 @@ CELL_T = char
 TAPESIZE=\(1*1024\)
 PROGSIZE=\(64*1024\)
 
-CFLAGS = -O3 -std=c90 -pedantic -Wall -DCELL_T=$(CELL_T) -DTAPESIZE=$(TAPESIZE) -DPROGSIZE=$(PROGSIZE)
+STDC90=-std=c90 -pedantic
+
+GNUC99=-std=c99
+
+STD=$(GNUC99)
+
+CFLAGS = -O3 $(STD) -Wall -DCELL_T=$(CELL_T) -DTAPESIZE=$(TAPESIZE) -DPROGSIZE=$(PROGSIZE)
 
 .PHONY: all clean
 
