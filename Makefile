@@ -1,7 +1,7 @@
 BIN = bfi
 CC = gcc
 CELL_T = char
-CFLAGS = -O3 -std=c89 -pedantic -DCELL_T=$(CELL_T)
+CFLAGS = -O3 -std=c90 -pedantic -DCELL_T=$(CELL_T)
 
 .PHONY: all clean
 

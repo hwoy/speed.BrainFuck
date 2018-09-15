@@ -86,31 +86,49 @@ static const_ip_t closebracket(const_ip_t rbegin,const_ip_t rend,int n)
 	return ip;
 }
 
+#if __STDC_VERSION__ >= 199901L
+inline
+#endif
 static int bfsuccvalue(tape_t* tape)
 {
 	return ++(*tape->ptr),BF_NORMAL ;
 }
 
+#if __STDC_VERSION__ >= 199901L
+inline
+#endif
 static int bfpredvalue(tape_t* tape)
 {
 	return --(*tape->ptr),BF_NORMAL ;
 }
 
+#if __STDC_VERSION__ >= 199901L
+inline
+#endif
 static int bfsuccptr(tape_t* tape)
 {
 	return (tape->ptr+1 >= tape->bptr+tape->size) ? BF_SUCCPTR : (++tape->ptr,BF_NORMAL) ;
 }
 
+#if __STDC_VERSION__ >= 199901L
+inline
+#endif
 static int bfpredptr(tape_t* tape)
 {
 	return (tape->ptr<= tape->bptr) ? BF_PREDPTR : (--tape->ptr,BF_NORMAL) ;
 }
 
+#if __STDC_VERSION__ >= 199901L
+inline
+#endif
 static int bfputvalue(tape_t* tape,FILE *fp)
 {
 	return fputc(*tape->ptr,fp),fflush(fp),BF_NORMAL;
 }
 
+#if __STDC_VERSION__ >= 199901L
+inline
+#endif
 static int bfgetvalue(tape_t* tape)
 {
 	return *tape->ptr=getchar(),BF_NORMAL;
