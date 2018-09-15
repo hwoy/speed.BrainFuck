@@ -10,14 +10,14 @@
 static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 {
 	size_t i=0;
-	int ch;
+	int inst;
 	
-	while(n && i<size && ((ch=fgetc(fp))!=EOF))
+	while(n && i<size && ((inst=fgetc(fp))!=EOF))
 	{
-		if(elembf(ch,bfcode))
+		if(elembf(inst,bfcode))
 		{
-			if(ch==INST_ENDWHILE) --n; else if(ch==INST_WHILE) ++n;
-			prog[i++]=ch;
+			if(inst==INST_ENDWHILE) --n; else if(inst==INST_WHILE) ++n;
+			prog[i++]=inst;
 		}
 	}
 	
@@ -28,7 +28,7 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 int main(int argc ,const char *argv[])
 {
 	FILE *fin,*fout=stdout;
-	int ch;
+	int inst;
 	tape_t tape;
 	ip_t *prog;
 	size_t size;
@@ -55,7 +55,7 @@ int main(int argc ,const char *argv[])
 		return 1;
 	}
 	
-	if(!(prog=malloc(sizeof(ip_t)*PROGSIZE)))
+	if(!(prog=malloc(sizeof(ip_t)*(PROGSIZE+1))))
 	{
 		fprintf(stderr,"Error alloc mem for tape\n");
 		fclose(fin);
@@ -65,18 +65,18 @@ int main(int argc ,const char *argv[])
 	}
 	
 	
-	while((ch=fgetc(fin))!=EOF)
+	while((inst=fgetc(fin))!=EOF)
 	{
-		switch(ch)
+		switch(inst)
 		{
-			case INST_WHILE: *prog=ch;size=gbracket(fin,prog+1,PROGSIZE-1,1)+1; break;
+			case INST_WHILE: *prog=inst;size=gbracket(fin,prog+1,PROGSIZE-1,1)+1; break;
 			case INST_ENDWHILE: break;
 			case INST_SUCCVALUE: 
 			case INST_PREDVALUE: 
 			case INST_SUCCPTR: 
 			case INST_PREDPTR: 
 			case INST_PUTVALUE: 
-			case INST_GETVALUE: *prog=ch;size=1; break;
+			case INST_GETVALUE: *prog=inst;size=1; break;
 			default: continue;
 		}
 		
