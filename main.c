@@ -38,11 +38,22 @@ static int showerr(const char *errstr[],size_t errid,const char *str)
 	return errid;
 }
 
+static const char *grappath(const char *path)
+{
+	const char *gpath;
+	
+	for(gpath=path;*path;++path)
+		if(*path== '\\' || *path== '/') gpath=path+1;
+	
+	return gpath;
+
+}
+
 static int showhelp(const char *path)
 {
-	fprintf(stderr,"\n%s is a brainf**k interpreter\n\n",path);
-	fprintf(stderr,"USAGE %s is infile\n",path);
-	fprintf(stderr,"USAGE %s is infile outfile\n",path);
+	fprintf(stderr,"\n%s is a brainf**k interpreter.\n\n",path);
+	fprintf(stderr,"USAGE: %s infile\n",path);
+	fprintf(stderr,"USAGE: %s infile outfile\n",path);
 	
 	return 1;
 }
@@ -107,7 +118,7 @@ int main(int argc ,const char *argv[])
 	int ret=0;
 	
 	if(argc<=1)
-		return showhelp(argv[0]);
+		return showhelp(grappath(argv[0]));
 	
 	if(argc>=2)
 	{
