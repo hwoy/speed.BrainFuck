@@ -19,7 +19,7 @@ enum STATE
 	STATE_ERR_MEMPROG
 };
 
-static const char *state[]={
+static const char *statemsg[]={
 	"Normal Operation",
 	"Can not SUCC PTR, increase TAPESIZE",
 	"Can not PRED PTR, check your bf code",
@@ -81,9 +81,9 @@ static size_t gbracket(FILE *fp,ip_t *prog,size_t size,int n)
 static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog,size_t progsize)
 {
 	size_t size;
-	int inst,stateid=STATE_EVAL_NORMAL;
+	int inst,state=STATE_EVAL_NORMAL;
 	
-	while((stateid==STATE_EVAL_NORMAL) && (inst=fgetc(fin))!=EOF)
+	while((state==STATE_EVAL_NORMAL) && (inst=fgetc(fin))!=EOF)
 	{
 		switch(inst)
 		{
@@ -104,10 +104,10 @@ static int bfevalstream(FILE *fin,FILE *fout,tape_t *tape,ip_t *prog,size_t prog
 			default: continue;
 		}
 		
-		stateid=bfeval(prog,prog+size,tape,fout);
+		state=bfeval(prog,prog+size,tape,fout);
 	}
 	
-	return stateid;
+	return state;
 	
 }
 
@@ -126,7 +126,7 @@ int main(int argc ,const char *argv[])
 	{
 		if(!(fin=fopen(argv[1],"r")))
 		{
-			return showerr(state,STATE_ERR_FIN,argv[1]);
+			return showerr(statemsg,STATE_ERR_FIN,argv[1]);
 		}		
 	}
 	
@@ -135,7 +135,7 @@ int main(int argc ,const char *argv[])
 		if(!(fout=fopen(argv[2],"wb")))
 		{
 			fclose(fin);
-			return showerr(state,STATE_ERR_FOUT,argv[2]);
+			return showerr(statemsg,STATE_ERR_FOUT,argv[2]);
 		}
 	}
 
@@ -143,7 +143,7 @@ int main(int argc ,const char *argv[])
 	{
 		fclose(fout);
 		fclose(fin);
-		return showerr(state,STATE_ERR_MEMTAPE,NULL);
+		return showerr(statemsg,STATE_ERR_MEMTAPE,NULL);
 	}
 	
 	if(!(prog=malloc(sizeof(ip_t)*PROGSIZE)))
@@ -151,13 +151,13 @@ int main(int argc ,const char *argv[])
 		destroytape(&tape);
 		fclose(fout);
 		fclose(fin);
-		return showerr(state,STATE_ERR_MEMPROG,NULL);
+		return showerr(statemsg,STATE_ERR_MEMPROG,NULL);
 	}
 	
 	{
-		int stateid;
-		if((stateid=bfevalstream(fin,fout,&tape,prog,PROGSIZE))!=STATE_EVAL_NORMAL)
-			ret=showerr(state,stateid,NULL);
+		int state;
+		if((state=bfevalstream(fin,fout,&tape,prog,PROGSIZE))!=STATE_EVAL_NORMAL)
+			ret=showerr(statemsg,state,NULL);
 	}
 	
 	free(prog);
